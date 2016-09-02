@@ -77,6 +77,7 @@ THREEx.DomEvents	= function(camera, domElement)
 	this._boundObjs	= {};
 	// Bind dom event for mouse and touch
 	var _this	= this;
+	var intersected;
 
 	this._$onClick		= function(){ _this._onClick.apply(_this, arguments);		};
 	this._$onDblClick	= function(){ _this._onDblClick.apply(_this, arguments);	};
@@ -96,7 +97,6 @@ THREEx.DomEvents	= function(camera, domElement)
 	this._domElement.addEventListener( 'touchstart'	, this._$onTouchStart	, false );
 	this._domElement.addEventListener( 'touchend'	, this._$onTouchEnd	, false );
 	this._domElement.addEventListener( 'contextmenu', this._$onContextmenu	, false );
-	
 }
 
 // # Destructor
@@ -179,7 +179,12 @@ THREEx.DomEvents.prototype._objectCtxIsInit	= function(object3d){
 	return object3d._3xDomEvent ? true : false;
 }
 THREEx.DomEvents.prototype._objectCtxGet		= function(object3d){
-	return object3d._3xDomEvent;
+	 if(typeof object3d._3xDomEvent == 'undefined' && typeof object3d.parent != 'undefined')
+    {
+        return object3d.parent._3xDomEvent;
+    }
+
+    return object3d._3xDomEvent;
 }
 
 /********************************************************************************/
@@ -328,6 +333,9 @@ THREEx.DomEvents.prototype._onEvent	= function(eventName, mouseX, mouseY, origDo
 	var object3d	= intersect.object;
 	var objectCtx	= this._objectCtxGet(object3d);
 	var objectParent = object3d.parent;
+	intersected = intersect;
+	
+
 
 	while ( typeof(objectCtx) == 'undefined' && objectParent )
 	{
@@ -447,4 +455,8 @@ THREEx.DomEvents.prototype._onTouchEvent	= function(eventName, domEvent)
 	var mouseX	= +(domEvent.touches[ 0 ].pageX / window.innerWidth ) * 2 - 1;
 	var mouseY	= -(domEvent.touches[ 0 ].pageY / window.innerHeight) * 2 + 1;
 	this._onEvent(eventName, mouseX, mouseY, domEvent);	
+}
+// function for get the complete intersected object (Public behavior)
+function getIntersected(){
+	return intersected;
 }
